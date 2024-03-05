@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+/**
+ * Login page inside the application.
+ * Higher order component
+ * @returns React Component
+ */
 export const Login = () => {
   const [showPsswd, setShowPsswd] = useState(false);
   return (

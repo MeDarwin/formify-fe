@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+/**
+ * Navbar component of the application
+ * @returns React Component
+ */
 export const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
 
