@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { AlertToast } from "./AlertToast";
 import { Navbar } from "./Navbar";
 
 /**
@@ -9,6 +10,7 @@ export const Layout = () => {
   return (
     <main className="grid grid-row-2">
       <Navbar />
+      <AlertToast />
       <section className="container mx-auto px-5 mt-5 font-bold">
         <Outlet />
       </section>

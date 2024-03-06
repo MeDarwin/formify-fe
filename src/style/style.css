@@ -6,3 +6,16 @@
 .btn-success {
   @apply text-white;
 }
+
+.animate-popup {
+  animation: popup 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popup {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 1.75rem;
+  } 
+}
