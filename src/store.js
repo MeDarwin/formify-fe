@@ -8,7 +8,7 @@ export const store = configureStore({
   reducer: {
     // Slices
     alertMessage: alertMessageSlice.reducer,
-    authManager: authSlice.reducer,
+    authenticated: authSlice.reducer,
     // Api Services
     [authApi.reducerPath]: authApi.reducer,
   },

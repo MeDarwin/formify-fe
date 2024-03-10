@@ -2,7 +2,7 @@ import { resetAlert, setTimeoutId } from "../slices/alertMessageSlice";
 
 export const resetMessageAfterError = (store) => (next) => (action) => {
   //reset all message within 5 seconds
-  if (action?.type == "auth/executeMutation/pending") {
+  if (action?.type == "alertMessage/setAlert") {
     store.dispatch(
       setTimeoutId(
         setTimeout(() => {

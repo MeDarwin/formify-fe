@@ -1,7 +1,7 @@
 import { useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
-import { resetAlert } from "../reducer/slices/alertMessageSlice";
+import { resetAlert } from "../../reducer/slices/alertMessageSlice";
 
 export const ListenLocationChangeWrapper = () => {
   const location = useLocation();

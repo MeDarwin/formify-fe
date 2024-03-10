@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AlertToast } from "../../components/AlertToast";
 import { ErrorField } from "../../components/ErrorField";
 import { useLoginMutation } from "../../reducer/services/authApi";
@@ -14,9 +14,16 @@ import { setAlert } from "../../reducer/slices/alertMessageSlice";
 export const Login = () => {
   const [showPsswd, setShowPsswd] = useState(false);
   const [data, setData] = useState({ email: "", password: "" });
+  const { accessToken } = useSelector((state) => state.authenticated);
+  const navigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();
   const errors = useSelector((state) => state.alertMessage.errors);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const localToken = localStorage.getItem("accessToken");
+    if (accessToken || localToken) navigate("/");
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();

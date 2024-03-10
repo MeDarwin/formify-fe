@@ -58,7 +58,38 @@ export const authApi = createApi({
       },
       invalidatesTags: ["auth"],
     }),
+    getMe: build.query({
+      query: (token) => {
+        return {
+          url: "auth/me",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      },
+      onQueryStarted: async (accessToken, { dispatch, queryFulfilled }) => {
+        queryFulfilled
+          .then(
+            ({
+              data: {
+                user: { name, email },
+              },
+            }) => {
+              dispatch(setUser({ name, email, accessToken }));
+              localStorage.setItem("name", name);
+              localStorage.setItem("email", email);
+            }
+          )
+          .catch(() => {
+            dispatch(resetUser());
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("name");
+            localStorage.removeItem("email");
+          });
+      },
+      providesTags: ["auth"],
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation } = authApi;
+export const { useRegisterMutation, useLoginMutation, useGetMeQuery, useLazyGetMeQuery } = authApi;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 /**
@@ -7,6 +8,7 @@ import { Link } from "react-router-dom";
  */
 export const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
+  const { name } = useSelector((state) => state.authenticated);
 
   return (
     <nav className="sticky top-0 w-full bg-white shadow z-50">
@@ -42,7 +44,7 @@ export const Navbar = () => {
             showMenu ? "flex" : "hidden"
           } items-center justify-between mt-5 md:gap-x-5 md:mt-0 md:flex space-x-1`}
         >
-          <p>🐵 username</p>
+          <p>{name} 🐵</p>
           <button className="btn btn-sm btn-outline btn-error">Logout</button>
         </div>
       </div>
