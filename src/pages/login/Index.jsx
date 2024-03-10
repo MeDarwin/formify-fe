@@ -5,7 +5,6 @@ import { AlertToast } from "../../components/AlertToast";
 import { ErrorField } from "../../components/ErrorField";
 import { useLoginMutation } from "../../reducer/services/authApi";
 import { setAlert } from "../../reducer/slices/alertMessageSlice";
-import { setUser } from "../../reducer/slices/authSlice";
 
 /**
  * Login page inside the application.
@@ -23,9 +22,8 @@ export const Login = () => {
     e.preventDefault();
     login({ email: data.email, password: data.password })
       .unwrap()
-      .then(({ name, accessToken, email, message }) => {
+      .then(({ message }) => {
         dispatch(setAlert({ type: "success", message }));
-        dispatch(setUser({ name, email, accessToken }));
       })
       .catch((err) => {
         dispatch(setAlert({ type: "error", ...err }));

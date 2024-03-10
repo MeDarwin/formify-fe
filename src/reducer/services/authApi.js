@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { app } from "../../config/config";
+import { resetUser, setUser } from "../slices/authSlice";
 
 export const authApi = createApi({
   reducerPath: "auth",
@@ -39,6 +40,21 @@ export const authApi = createApi({
           message: response.data?.message ?? "Failed doing action",
           errors: response.data?.errors,
         };
+      },
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        queryFulfilled
+          .then(({ data: { name, email, accessToken } }) => {
+            dispatch(setUser({ name, email, accessToken }));
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("name", name);
+            localStorage.setItem("email", email);
+          })
+          .catch(() => {
+            dispatch(resetUser());
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("name");
+            localStorage.removeItem("email");
+          });
       },
       invalidatesTags: ["auth"],
     }),
