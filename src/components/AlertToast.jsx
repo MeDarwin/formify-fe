@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setAlert } from "../reducer/slices/alertMessageSlice";
+import { resetAlert } from "../reducer/slices/alertMessageSlice";
 
 const emoji = {
   error: "😢",
@@ -13,29 +12,28 @@ const emoji = {
 
 /**
  * Alert toaster when user needs to be notified
- * @param {{type: "info"|"success"|"warning"|"error"}} type
  * @returns React Component for alert toast
  */
 export const AlertToast = () => {
   const { type, message } = useSelector((state) => state.alertMessage);
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (message) {
-      setTimeout(() => {
-        dispatch(setAlert({ type: "info", message: null }));
-      }, 3000);
-    }
-  }, [dispatch, message]);
-
+  
   return (
     message && (
-      <div className="z-50 fixed w-full left-7 animate-popup">
+      <div className="z-50 fixed w-full animate-popup">
         <div
           role="alert"
-          className={`border-2 border-${type} bg-${type} bg-opacity-10 backdrop-brightness-50 backdrop-blur-lg rounded-lg p-3 flex items-center flex-nowrap gap-x-6 w-10/12 md:w-1/2`}
+          className={`border-2 border-${type} bg-${type} backdrop-brightness-[0.4] bg-opacity-10 mx-7 backdrop-blur-lg rounded-lg p-3 flex items-center flex-nowrap gap-x-6 w-10/12 md:w-1/2 min-w-fit`}
         >
-          <i className="text-3xl not-italic">{emoji[type]}</i>
-          <span className={`text-${type} font-black text-xl`}>{message}</span>
+          <i className="text-3xl">{emoji[type]}</i>
+          <p className={`text-${type} font-black text-xl italic`}>{message}</p>
+          <button
+            className={`text-3xl ms-auto font-black text-${type}`}
+            onClick={() => dispatch(resetAlert())}
+            aria-label="close"
+          >
+            X
+          </button>
         </div>
       </div>
     )

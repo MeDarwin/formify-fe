@@ -38,7 +38,7 @@ export const Register = () => {
         );
         setTimeout(() => {
           navigate("/login");
-        }, 3000);
+        }, 1000);
       })
       .catch((err) => {
         dispatch(setAlert({ type: "error", ...err }));
@@ -75,7 +75,7 @@ export const Register = () => {
                 <span className="absolute right-6 top-1/2 -translate-y-1/2 text-4xl h-min">
                   🐒
                 </span>
-                <ErrorField message={errors?.name} />
+                <ErrorField className={"absolute left-6 bottom-1"} message={errors?.name} />
               </span>
               {/* -------------------------------- USERNAME --------------------------------  */}
               {/* -------------------------------- REGISTER --------------------------------- */}
@@ -100,7 +100,7 @@ export const Register = () => {
                 <span className="absolute right-6 top-1/2 -translate-y-1/2 text-4xl h-min">
                   🍌
                 </span>
-                <ErrorField message={errors?.email} />
+                <ErrorField className={"absolute left-6 bottom-1"} message={errors?.email} />
               </span>
               {/* -------------------------------- EMAIL -------------------------------- */}
               {/* -------------------------------- PASSWORD -------------------------------- */}
@@ -123,7 +123,7 @@ export const Register = () => {
                   <span className="swap-on">🐵</span>
                   <span className="swap-off">🙈</span>
                 </label>
-                <ErrorField message={errors?.password} />
+                <ErrorField className={"absolute left-6 bottom-1"} message={errors?.password} />
               </span>
               {/* -------------------------------- PASSWORD -------------------------------- */}
               {/* -------------------------------- LOGIN ----------------------------------- */}

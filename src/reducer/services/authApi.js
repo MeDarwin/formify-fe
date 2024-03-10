@@ -21,7 +21,25 @@ export const authApi = createApi({
         return {
           message: response.data?.message
             ? response.data.message
-            : "Error doing action",
+            : "Failed doing action",
+          errors: response.data?.errors,
+        };
+      },
+      invalidatesTags: ["auth"],
+    }),
+    login: build.mutation({
+      query: (data) => ({
+        url: "auth/login",
+        method: "POST",
+        body: data,
+      }),
+      transformResponse: (response) =>
+        response?.message ? response.message : "Succes doing action",
+      transformErrorResponse: (response) => {
+        return {
+          message: response.data?.message
+            ? response.data.message
+            : "Failed doing action",
           errors: response.data?.errors,
         };
       },
@@ -30,4 +48,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useRegisterMutation } = authApi;
+export const { useRegisterMutation, useLoginMutation } = authApi;

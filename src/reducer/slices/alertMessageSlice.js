@@ -4,6 +4,7 @@ const initialState = {
   type: "info",
   errors: null,
   message: null,
+  timeoutId: null,
 };
 
 export const alertMessageSlice = createSlice({
@@ -15,7 +16,15 @@ export const alertMessageSlice = createSlice({
       state.message = action.payload.message;
       state.type = action.payload.type;
     },
+    resetAlert: (state) => {
+      state.errors = null;
+      state.message = null;
+      state.type = "info";
+    },
+    setTimeoutId: (state, action) => {
+      state.timeoutId = action.payload;
+    },
   },
 });
 
-export const { setAlert } = alertMessageSlice.actions;
+export const { setAlert, resetAlert, setTimeoutId } = alertMessageSlice.actions;
