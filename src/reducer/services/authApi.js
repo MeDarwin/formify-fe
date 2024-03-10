@@ -19,9 +19,7 @@ export const authApi = createApi({
         response?.message ? response.message : "Succes doing action",
       transformErrorResponse: (response) => {
         return {
-          message: response.data?.message
-            ? response.data.message
-            : "Failed doing action",
+          message: response.data?.message ? response.data.message : "Failed doing action",
           errors: response.data?.errors,
         };
       },
@@ -33,13 +31,12 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
-      transformResponse: (response) =>
-        response?.message ? response.message : "Succes doing action",
+      transformResponse: (response) => {
+        return { message: response?.message ?? "Succes doing action", ...response?.user };
+      },
       transformErrorResponse: (response) => {
         return {
-          message: response.data?.message
-            ? response.data.message
-            : "Failed doing action",
+          message: response.data?.message ?? "Failed doing action",
           errors: response.data?.errors,
         };
       },
