@@ -8,7 +8,7 @@
 }
 
 .animate-popup {
-  animation: popup 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: popup .85s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes popup {
