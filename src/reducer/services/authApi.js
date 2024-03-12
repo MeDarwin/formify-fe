@@ -59,6 +59,7 @@ export const authApi = createApi({
       invalidatesTags: ["auth"],
     }),
     getMe: build.query({
+      //TODO: FIX TOKEN ONLY FROM REDUX.
       query: (token) => {
         return {
           url: "auth/me",
