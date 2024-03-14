@@ -6,7 +6,11 @@ export const authApi = createApi({
   reducerPath: "auth",
   baseQuery: fetchBaseQuery({
     baseUrl: app.apiUrl,
-    headers: {},
+    prepareHeaders: (headers, { endpoint }) => {
+      return endpoint == "getMe"
+        ? headers.set("Authorization", `Bearer ${localStorage.getItem("accessToken")}`)
+        : headers;
+    },
   }),
   tagTypes: ["auth"],
   endpoints: (build) => ({
@@ -59,16 +63,10 @@ export const authApi = createApi({
       invalidatesTags: ["auth"],
     }),
     getMe: build.query({
-      //TODO: FIX TOKEN ONLY FROM REDUX.
-      query: (token) => {
-        return {
-          url: "auth/me",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
+      query: () => {
+        return { url: "auth/me" };
       },
-      onQueryStarted: async (accessToken, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         queryFulfilled
           .then(
             ({
@@ -76,7 +74,7 @@ export const authApi = createApi({
                 user: { name, email },
               },
             }) => {
-              dispatch(setUser({ name, email, accessToken }));
+              dispatch(setUser({ name, email, accessToken: localStorage.getItem("accessToken") }));
               localStorage.setItem("name", name);
               localStorage.setItem("email", email);
             }
