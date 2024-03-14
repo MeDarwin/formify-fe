@@ -7,7 +7,7 @@
  */
 export const FAB = ({ modalRef }) => {
   return (
-    <div className="fixed bottom-14 right-10">
+    <div className="z-50 fixed bottom-14 sm:right-10">
       <button
         onClick={() => modalRef.current.showModal()}
         className="rounded-full box-content py-3 px-5 text-xl font-black btn btn-secondary text-white focus:outline-none leading-none hover:before:content-['Create_Form']"
