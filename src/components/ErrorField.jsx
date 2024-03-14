@@ -7,7 +7,7 @@
 export const ErrorField = ({ message, className: additionalClass }) => {
   return (
     message && (
-      <p className={`text-red-500 text-sm ${additionalClass}`}>{message}</p>
+      <span className={`block text-red-500 text-sm ${additionalClass}`}>{message}</span>
     )
   );
 };

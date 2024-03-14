@@ -3,6 +3,7 @@ import { resetAlert, setTimeoutId } from "../slices/alertMessageSlice";
 export const resetMessageAfterError = (store) => (next) => (action) => {
   //reset all message within 5 seconds
   if (action?.type == "alertMessage/setAlert") {
+    clearTimeout(store.getState().alertMessage.timeoutId); //always clear last timeout first to prevent unnecessary timeout redundant
     store.dispatch(
       setTimeoutId(
         setTimeout(() => {
@@ -14,7 +15,6 @@ export const resetMessageAfterError = (store) => (next) => (action) => {
   }
   //clear timeout when reset, preventing unexpected timeout reset from manual reset
   if (action?.type == "alertMessage/resetAlert") {
-    // console.log("clear timeout called");
     clearTimeout(store.getState().alertMessage.timeoutId);
     store.dispatch(setTimeoutId(null));
   }

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
 import { ErrorField } from "../components/ErrorField";
@@ -7,6 +7,7 @@ import { FAB } from "../components/FAB";
 import { Modal } from "../components/Modal";
 import {
   useCreateFormMutation,
+  useCreateQuestionMutation,
   useGetAllFormsQuery,
   useGetBySlugQuery,
 } from "../reducer/services/formApi";
@@ -35,6 +36,7 @@ const FormModal = ({ modalRef }) => {
       .then(({ message }) => {
         dispatch(setAlert({ type: "success", message }));
         e.target.reset();
+        modalRef.current.close();
       })
       .catch((err) => {
         dispatch(setAlert({ type: "error", ...err }));
@@ -49,10 +51,10 @@ const FormModal = ({ modalRef }) => {
     <Modal modalRef={modalRef} title="Create Form" handleSubmit={handleSubmit}>
       {/* NAME INPUT */}
       <label className="label">
-        <span className="label-text w-4/12">
-          <p className="required">Form name</p>
+        <p className="label-text w-4/12">
+          <span className="required">Form name</span>
           <ErrorField className="gap-0" message={errors?.name} />
-        </span>
+        </p>
         <input
           onChange={handleChange}
           type="text"
@@ -63,10 +65,10 @@ const FormModal = ({ modalRef }) => {
       {/* NAME INPUT */}
       {/* SLUG INPUT */}
       <label className="label">
-        <span className="label-text w-4/12">
-          <p className="required">Form slug</p>
+        <p className="label-text w-4/12">
+          <span className="required">Form slug</span>
           <ErrorField message={errors?.slug} />
-        </span>
+        </p>
         <input
           onChange={handleChange}
           type="text"
@@ -77,10 +79,10 @@ const FormModal = ({ modalRef }) => {
       {/* SLUG INPUT */}
       {/* DESCRIPTION INPUT */}
       <label className="label">
-        <span className="label-text w-4/12">
-          Form description
+        <p className="label-text w-4/12">
+          <span className="required">Form description</span>
           <ErrorField message={errors?.description} />
-        </span>
+        </p>
         <input
           onChange={handleChange}
           type="text"
@@ -91,11 +93,11 @@ const FormModal = ({ modalRef }) => {
       {/* DESCRIPTION INPUT */}
       {/* ALLOWED DOMAINS */}
       <label className="label">
-        <span className="label-text w-4/12">
-          Allowed domains
-          <p className="text-gray-400 text-xs">Separated by coma (&ldquo;, &rdquo;)</p>
+        <p className="label-text w-4/12">
+          <span>Allowed domains</span>
+          <span className="text-gray-400 text-xs">Separated by coma (&ldquo;, &rdquo;)</span>
           <ErrorField message={errors?.allowed_domains} />
-        </span>
+        </p>
         <input
           onChange={handleChange}
           type="text"
@@ -107,10 +109,10 @@ const FormModal = ({ modalRef }) => {
       {/* ALLOWED DOMAINS */}
       {/* LIMIT ONE RESPONSE */}
       <div className="flex">
-        <span className="label-text w-4/12">
-          Limit to one response
+        <p className="label-text w-4/12">
+          <span>Limit to one response</span>
           <ErrorField message={errors?.limit_one_response} />
-        </span>
+        </p>
         <div className="w-full [&>*]:border">
           <label className="hover:cursor-pointer hover:bg-primary hover:bg-opacity-25 rounded-full ps-4 label gap-x-2 py-0 pe-0 mb-3">
             <span className="label-text">true</span>
@@ -163,9 +165,16 @@ const FormCard = ({ form }) => {
   );
 };
 
-//TODO: save the question to backend
+/**
+ * Question form component, question form modal
+ * @returns React Component
+ */
 const QuestionForm = () => {
-  const modalRef = createRef();
+  const modalRef = useRef();
+  const dispatch = useDispatch();
+  const [searchParam] = useSearchParams();
+  const error = useSelector((state) => state.alertMessage?.errors);
+  const [createQuestion, { isLoading }] = useCreateQuestionMutation();
   const [question, setQuestion] = useState({
     name: null,
     choice_type: null,
@@ -175,7 +184,16 @@ const QuestionForm = () => {
 
   const handleSubmit = (/** @type {React.FormEvent<HTMLFormElement>} */ e) => {
     e.preventDefault();
-    console.log(question);
+    createQuestion({ data: question, slug: searchParam.get("slug") })
+      .unwrap()
+      .then(({ message }) => {
+        dispatch(setAlert({ type: "success", message }));
+        e.target.reset();
+        modalRef.current.close();
+      })
+      .catch(({ data }) =>
+        dispatch(setAlert({ type: "error", message: data?.message, errors: data?.errors }))
+      );
   };
 
   const handleChange = useCallback(
@@ -184,14 +202,13 @@ const QuestionForm = () => {
       if (
         e.target.name === "choice_type" &&
         !["multiple choice", "dropdown", "checkboxes"].includes(e.target.value)
-      ) {
-        setQuestion({ ...question, choices: null });
-      }
+      )
+        setQuestion((prevState) => ({ ...prevState, choices: null }));
     },
     [question]
   );
 
-  const generateAdditionalChoices = useMemo(() => {
+  const additionalChoices = useMemo(() => {
     switch (question.choice_type) {
       case "multiple choice":
       case "dropdown":
@@ -201,6 +218,7 @@ const QuestionForm = () => {
             <p className="label-text w-4/12">
               <span className="required">Additional choices</span>
               <span className="block text-xs text-gray-400">Separated by parentheses ()</span>
+              <ErrorField message={error?.choices} />
             </p>
             <input
               type="text"
@@ -214,14 +232,17 @@ const QuestionForm = () => {
       default:
         return null;
     }
-  }, [handleChange, question.choice_type]);
+  }, [error?.choices, handleChange, question.choice_type]);
 
   return (
     <>
       <Modal modalRef={modalRef} title="Make a question" handleSubmit={handleSubmit}>
         {/* NAME INPUT */}
         <label className="label">
-          <span className="label-text w-4/12 required">Question&apos;s name</span>
+          <p className="label-text w-4/12">
+            <span className="required">Question&apos;s name</span>
+            <ErrorField message={error?.name} />
+          </p>
           <input
             name="name"
             type="text"
@@ -232,7 +253,10 @@ const QuestionForm = () => {
         {/* NAME INPUT */}
         {/* IS REQUIRED */}
         <div className="flex">
-          <span className="label-text w-4/12">Is required</span>
+          <p className="label-text w-4/12">
+            <span>Is required</span>
+            <ErrorField message={error?.is_required} />
+          </p>
           <div className="w-full [&>*]:border">
             <label className="hover:cursor-pointer hover:bg-primary hover:bg-opacity-25 rounded-full ps-4 label gap-x-2 py-0 pe-0 mb-3">
               <span className="label-text">true</span>
@@ -260,7 +284,10 @@ const QuestionForm = () => {
         {/* IS REQUIRED */}
         {/* QUESTION TYPE */}
         <label className="label">
-          <span className="label-text w-4/12 required">Question&apos;s type</span>
+          <p className="label-text w-4/12">
+            <span className="required">Question&apos;s type</span>
+            <ErrorField message={error?.choice_type} />
+          </p>
           <select
             name="choice_type"
             className="select select-bordered w-full"
@@ -281,14 +308,19 @@ const QuestionForm = () => {
         </label>
         {/* QUESTION TYPE */}
         {/* ADDTIONAL CHOICES - WHEN MULTIPLE INPUT IS NEEDED */}
-        {generateAdditionalChoices}
+        {additionalChoices}
         {/* ADDTIONAL CHOICES */}
 
         <p className="label-text text-gray-400">
           note: <span className="required"></span> is required
         </p>
 
-        <button className="btn btn-lg grow justify-center btn-success text-3xl line-clamp-6">
+        <button
+          type="submit"
+          className="btn btn-lg grow justify-center btn-success text-3xl line-clamp-6"
+          disabled={isLoading}
+          aria-disabled={isLoading}
+        >
           Save ✅
         </button>
       </Modal>
@@ -342,9 +374,9 @@ const FormDetail = () => {
       </span>
       <div className="card w-full md:w-3/4 mx-auto bg-base-100 shadow-xl mt-5">
         <div className="card-body">
-          <div className="text-2xl italic mb-3 text-primary flex flex-col">
-            <h1 className="text-4xl text-primary lg:text-nowrap leading-none flex mb-3">
-              <span className="w-3/4">{data?.form.name}</span>
+          <div className="mb-3 flex flex-col">
+            <h1 className="text-4xl italic text-primary lg:text-nowrap flex-wrap leading-none flex mb-3">
+              <span className="w-full lg:w-3/4 text-wrap">{data?.form.name}</span>
               <span
                 className="badge badge-secondary badge-lg hover:badge-outline hover:cursor-pointer hover:text-white ms-auto"
                 onClick={handleCopy}
@@ -354,15 +386,31 @@ const FormDetail = () => {
             </h1>
             <p className="text-lg text-base-content">{data?.form.description}</p>
             <p className="text-sm text-gray-400">
-              Allowed domains: {data?.form.allowed_domains.join(", ")}
+              <span className="block">
+                One response per user:{" "}
+                {data?.form.limit_one_response ? (
+                  <span className="text-success">YES</span>
+                ) : (
+                  <span className="text-error">NO</span>
+                )}
+              </span>
+              <span className="block">
+                Allowed domains: {data?.form.allowed_domains.join(", ")}
+              </span>
             </p>
           </div>
           <QuestionForm />
-          <div className="card-actions flex-nowrap">
+          {data?.form?.questions.map(({ id, name,choice_type }) => (
+            <div key={id}>
+              <p>{name}</p>
+              <p>{choice_type}</p>
+            </div>
+          ))}
+          {/* <div className="card-actions flex-nowrap">
             <button className="btn btn-lg btn-outline ms-auto justify-center btn-error text-3xl hover:before:content-['Delete_form'] before:text-white line-clamp-6">
               💣
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </article>
@@ -374,7 +422,7 @@ const FormDetail = () => {
  * @returns React Component
  */
 export const Home = () => {
-  const modalRef = createRef();
+  const modalRef = useRef();
   const [searchParam] = useSearchParams();
   const { data, isLoading, isFetching, isError } = useGetAllFormsQuery();
 
