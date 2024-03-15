@@ -400,17 +400,32 @@ const FormDetail = () => {
             </p>
           </div>
           <QuestionForm />
-          {data?.form?.questions.map(({ id, name,choice_type }) => (
-            <div key={id}>
-              <p>{name}</p>
-              <p>{choice_type}</p>
+          <p className="text-lg">
+            Questions:{" "}
+            <span className="text-xs text-gray-400">{data?.form.questions.length} in total</span>
+          </p>
+          {data?.form?.questions.map(({ id, name, choice_type, choices }, index) => (
+            <div key={id} className="card border">
+              <div className="card-body flex-wrap flex-row">
+                <span>
+                  <p className="card-title">{index + 1}.</p>
+                  <p>Type: {choice_type}</p>
+                  <p className="font-normal">{name}</p>
+                  <ul className="list-disc list-inside">
+                    {["multiple choice", "dropdown", "checkboxes"].includes(choice_type) &&
+                      choices.split(",").map((val, index) => (
+                        <li key={index} className="font-normal">
+                          {val}
+                        </li>
+                      ))}
+                  </ul>
+                </span>
+                <button className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6">
+                  💣
+                </button>
+              </div>
             </div>
           ))}
-          {/* <div className="card-actions flex-nowrap">
-            <button className="btn btn-lg btn-outline ms-auto justify-center btn-error text-3xl hover:before:content-['Delete_form'] before:text-white line-clamp-6">
-              💣
-            </button>
-          </div> */}
         </div>
       </div>
     </article>
