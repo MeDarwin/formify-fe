@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { AlertToast } from "../../components/AlertToast";
@@ -20,9 +20,8 @@ export const Login = () => {
   const errors = useSelector((state) => state.alertMessage.errors);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const localToken = localStorage.getItem("accessToken");
-    if (accessToken || localToken) navigate("/");
+  useLayoutEffect(() => {
+    if (accessToken) navigate("/");
   });
 
   const handleSubmit = (e) => {

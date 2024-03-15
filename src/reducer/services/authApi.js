@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { app } from "../../config/config";
+import { setAlert } from "../slices/alertMessageSlice";
 import { resetUser, setUser } from "../slices/authSlice";
 
 export const authApi = createApi({
@@ -7,7 +8,7 @@ export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: app.apiUrl,
     prepareHeaders: (headers, { endpoint }) => {
-      return endpoint == "getMe"
+      return ["getMe", "logout"].includes(endpoint)
         ? headers.set("Authorization", `Bearer ${localStorage.getItem("accessToken")}`)
         : headers;
     },
@@ -62,6 +63,35 @@ export const authApi = createApi({
       },
       invalidatesTags: ["auth"],
     }),
+    logout: build.mutation({
+      query: () => ({
+        url: "auth/logout",
+        method: "POST",
+      }),
+      transformResponse: (response) => {
+        return { message: response?.message ?? "Succes doing action" };
+      },
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        // reset user state
+        dispatch(resetUser());
+        // remove token from localstorage
+        queryFulfilled
+          .catch(() => {
+            dispatch(
+              setAlert({
+                type: "warning",
+                message: "Failed to delete token, logged out without deleting token",
+              })
+            );
+          })
+          .finally(() => {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("email");
+            localStorage.removeItem("name");
+          });
+      },
+      invalidatesTags: ["auth"],
+    }),
     getMe: build.query({
       query: () => {
         return { url: "auth/me" };
@@ -91,4 +121,10 @@ export const authApi = createApi({
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useGetMeQuery, useLazyGetMeQuery } = authApi;
+export const {
+  useRegisterMutation,
+  useLoginMutation,
+  useGetMeQuery,
+  useLazyGetMeQuery,
+  useLogoutMutation,
+} = authApi;
