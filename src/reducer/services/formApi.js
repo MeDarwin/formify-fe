@@ -27,23 +27,25 @@ const createQuestionReplacer = (key, value) => {
 export const formApi = createApi({
   reducerPath: "form",
   baseQuery: fetchWithToken,
-  tagTypes: ["form", "question"],
+  tagTypes: ["form"],
   keepUnusedDataFor: 3600, // 1 hour
   endpoints: (build) => ({
+    /* -------------------------------------------------------------------------- */
+    /*                               FORM ENDPOINTS                               */
+    /* -------------------------------------------------------------------------- */
     getAllForms: build.query({
       query: () => ({
         url: "forms",
         method: "GET",
       }),
-      providesTags: (result) =>
-        result ? [...result.forms.map(({ slug }) => ({ type: "form", slug }))] : ["form"],
+      providesTags: [{ type: "form", id: "LIST" }],
     }),
     getBySlug: build.query({
       query: (slug) => ({
         url: `forms/${slug}`,
         method: "GET",
       }),
-      providesTags: (result) => [{ type: "form", slug: result?.form?.slug }],
+      providesTags: (result) => [{ type: "form", id: result?.form?.slug }],
     }),
     createForm: build.mutation({
       query: (data) => ({
@@ -60,15 +62,25 @@ export const formApi = createApi({
           errors: response.data?.errors,
         };
       },
-      invalidatesTags: (_, error) => (error ? [] : ["form"]),
+      invalidatesTags: (_, error) => (error ? [] : [{ type: "form", id: "LIST" }]),
     }),
+    /* -------------------------------------------------------------------------- */
+    /*                              QUESTION ENDPOINT                             */
+    /* -------------------------------------------------------------------------- */
     createQuestion: build.mutation({
       query: ({ data, slug }) => ({
         url: `forms/${slug}/questions`,
         method: "POST",
         body: JSON.parse(JSON.stringify(data, createQuestionReplacer)),
       }),
-      invalidatesTags: (_, error) => (error ? [] : ["question", "form"]),
+      invalidatesTags: (_, error, { slug }) => (error ? [] : [{ type: "form", id: slug }]),
+    }),
+    deleteQuestion: build.mutation({
+      query: ({ slug, id }) => ({
+        url: `forms/${slug}/questions/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_, error, { slug }) => (error ? [] : [{ type: "form", id: slug }]),
     }),
   }),
 });
@@ -80,4 +92,5 @@ export const {
   useLazyGetBySlugQuery,
   useCreateFormMutation,
   useCreateQuestionMutation,
+  useDeleteQuestionMutation,
 } = formApi;

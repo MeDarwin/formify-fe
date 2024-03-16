@@ -2,12 +2,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
+import { CommonLoading } from "../components/CommonLoading";
 import { ErrorField } from "../components/ErrorField";
 import { FAB } from "../components/FAB";
 import { Modal } from "../components/Modal";
 import {
   useCreateFormMutation,
   useCreateQuestionMutation,
+  useDeleteQuestionMutation,
   useGetAllFormsQuery,
   useGetBySlugQuery,
 } from "../reducer/services/formApi";
@@ -344,6 +346,7 @@ const FormDetail = () => {
       skip: searchParam.get("slug") === null,
     }
   );
+  const [deleteQuestion, { isLoading: isDeleting }] = useDeleteQuestionMutation();
 
   const handleCopy = () => {
     const location = window.location;
@@ -353,6 +356,7 @@ const FormDetail = () => {
       .catch(() => dispatch(setAlert({ type: "error", message: "Error copying link" })));
     void 0;
   };
+
   useEffect(() => {
     if (isError)
       dispatch(
@@ -362,7 +366,7 @@ const FormDetail = () => {
 
   if (isError) return <p>Something went wrong</p>;
 
-  if (isLoading || isFetching) return <p>loading...</p>;
+  if (isLoading || isFetching) return <CommonLoading />;
 
   if (searchParam.get("slug") === null) return <p>No form selected</p>;
 
@@ -381,7 +385,7 @@ const FormDetail = () => {
                 className="badge badge-secondary badge-lg hover:badge-outline hover:cursor-pointer hover:text-white ms-auto"
                 onClick={handleCopy}
               >
-                Share link🔗
+                Share link 🔗
               </span>
             </h1>
             <p className="text-lg text-base-content">{data?.form.description}</p>
@@ -404,13 +408,19 @@ const FormDetail = () => {
             Questions:{" "}
             <span className="text-xs text-gray-400">{data?.form.questions.length} in total</span>
           </p>
-          {data?.form?.questions.map(({ id, name, choice_type, choices }, index) => (
+          {data?.form?.questions.map(({ id, name, choice_type, choices, is_required }, index) => (
             <div key={id} className="card border">
               <div className="card-body flex-wrap flex-row">
                 <span>
                   <p className="card-title">{index + 1}.</p>
-                  <p>Type: {choice_type}</p>
-                  <p className="font-normal">{name}</p>
+                  <p>{name}</p>
+                  <p className="font-normal text-xs">Type: {choice_type}</p>
+                  <p className="font-normal mt-2">
+                    Is required to answer:{" "}
+                    <span className={`font-bold ${is_required ? "text-success" : "text-error"}`}>
+                      {is_required ? "YES" : "NO"}
+                    </span>
+                  </p>
                   <ul className="list-disc list-inside">
                     {["multiple choice", "dropdown", "checkboxes"].includes(choice_type) &&
                       choices.split(",").map((val, index) => (
@@ -420,7 +430,12 @@ const FormDetail = () => {
                       ))}
                   </ul>
                 </span>
-                <button className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6">
+                <button
+                  onClick={() => deleteQuestion({ slug: data?.form.slug, id })}
+                  className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6"
+                  disabled={isDeleting}
+                  aria-disabled={isDeleting}
+                >
                   💣
                 </button>
               </div>
@@ -461,7 +476,7 @@ export const Home = () => {
             <span className="block h-7 w-full bg-gradient-to-r from-pink-500 to-violet-500"></span>
           </span>
           {isLoading || isFetching ? (
-            <span>Loading...</span>
+            <CommonLoading />
           ) : (
             <div className="grid grid-cols-[repeat(auto-fill,_minmax(18.75rem,_1fr))] gap-x-4 gap-y-3 mt-3">
               {data.forms?.map((form, index) => (
