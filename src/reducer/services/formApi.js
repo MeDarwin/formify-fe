@@ -18,7 +18,7 @@ const createQuestionReplacer = (key, value) => {
   if (key == "choices" && typeof value === "string" && value !== "")
     return value
       .match(/\(([^)]+)\)/gm)
-      .map((val) => val.substring(1, val.length - 1))
+      ?.map((val) => val.substring(1, val.length - 1))
       .filter((val) => val !== "");
   //return other values
   return value;

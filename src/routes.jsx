@@ -5,6 +5,7 @@ import { ProtectedRoutesWrapper } from "./components/wrapper/ProtectedRoutesWrap
 import { Home } from "./pages/Index";
 import { Login } from "./pages/login/Index";
 import { Register } from "./pages/register";
+import ResponseForm from "./pages/response/Index";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
           },
         ],
         /* -------------------------- AUTHORISED USER ONLY -------------------------- */
+      },
+      {
+        path: "/response/:slug",
+        element: <ResponseForm />,
       },
       {
         path: "/login",

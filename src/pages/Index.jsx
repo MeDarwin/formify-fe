@@ -351,7 +351,7 @@ const FormDetail = () => {
   const handleCopy = () => {
     const location = window.location;
     navigator.clipboard
-      .writeText(`${location.origin}/response/${location.search}`)
+      .writeText(`${location.origin}/response/${searchParam.get("slug")}`)
       .then(() => dispatch(setAlert({ type: "success", message: "Link copied to clipboard" })))
       .catch(() => dispatch(setAlert({ type: "error", message: "Error copying link" })));
     void 0;
