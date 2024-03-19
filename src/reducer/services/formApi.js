@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { fetchWithToken } from "../fetchWithToken";
+import { setAlert } from "../slices/alertMessageSlice";
 
 const createFormReplacer = (key, value) => {
   // change from string to array on limit_one_response
@@ -82,6 +83,30 @@ export const formApi = createApi({
       }),
       invalidatesTags: (_, error, { slug }) => (error ? [] : [{ type: "form", id: slug }]),
     }),
+    /* -------------------------------------------------------------------------- */
+    /*                              RESPONSE ENDPOINT                             */
+    /* -------------------------------------------------------------------------- */
+    submitResponse: build.mutation({
+      query: ({ slug, data }) => ({
+        url: `forms/${slug}/responses`,
+        method: "POST",
+        body: { answers: data },
+      }),
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        queryFulfilled
+          .then(({ data: { message } }) => dispatch(setAlert({ type: "success", message })))
+          .catch(
+            ({
+              error: {
+                data: { message },
+              },
+            }) => dispatch(setAlert({ type: "error", message: message ?? "Failed doing action" }))
+          );
+      },
+      transformResponse: (response) => {
+        return { message: response?.message ?? "Succes doing action" };
+      },
+    }),
   }),
 });
 
@@ -93,4 +118,5 @@ export const {
   useCreateFormMutation,
   useCreateQuestionMutation,
   useDeleteQuestionMutation,
+  useSubmitResponseMutation,
 } = formApi;

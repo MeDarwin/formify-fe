@@ -18,20 +18,23 @@ export const router = createBrowserRouter([
         children: [
           {
             element: <Layout />,
+            /* ----------------------------- LAYOUT CHILDREN ---------------------------- */
             children: [
               {
                 path: "/",
                 element: <Home />,
               },
+              {
+                path: "/response/:slug",
+                element: <ResponseForm />,
+              },
             ],
+            /* ----------------------------- LAYOUT CHILDREN ---------------------------- */
           },
         ],
         /* -------------------------- AUTHORISED USER ONLY -------------------------- */
       },
-      {
-        path: "/response/:slug",
-        element: <ResponseForm />,
-      },
+
       {
         path: "/login",
         element: <Login />,

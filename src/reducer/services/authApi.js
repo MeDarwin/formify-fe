@@ -76,6 +76,9 @@ export const authApi = createApi({
         dispatch(resetUser());
         // remove token from localstorage
         queryFulfilled
+          .then(() => {
+            dispatch(setAlert({ type: "success", message: "Successfully logged out" }));
+          })
           .catch(() => {
             dispatch(
               setAlert({
