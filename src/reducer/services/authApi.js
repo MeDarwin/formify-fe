@@ -1,15 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { app } from "../../config/config";
 import { setAlert } from "../slices/alertMessageSlice";
-import { resetUser, setUser } from "../slices/authSlice";
+import { resetUser, setToken, setUser } from "../slices/authSlice";
 
 export const authApi = createApi({
   reducerPath: "auth",
   baseQuery: fetchBaseQuery({
     baseUrl: app.apiUrl,
-    prepareHeaders: (headers, { endpoint }) => {
+    prepareHeaders: (headers, { endpoint, getState }) => {
       return ["getMe", "logout"].includes(endpoint)
-        ? headers.set("Authorization", `Bearer ${localStorage.getItem("accessToken")}`)
+        ? headers.set("Authorization", `Bearer ${getState().authenticated.accessToken}`)
         : headers;
     },
   }),
@@ -48,17 +48,11 @@ export const authApi = createApi({
       },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         queryFulfilled
-          .then(({ data: { name, email, accessToken } }) => {
-            dispatch(setUser({ name, email, accessToken }));
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("name", name);
-            localStorage.setItem("email", email);
+          .then(({ data: { accessToken } }) => {
+            dispatch(setToken(accessToken));
           })
           .catch(() => {
             dispatch(resetUser());
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("name");
-            localStorage.removeItem("email");
           });
       },
       invalidatesTags: ["auth"],
@@ -72,9 +66,6 @@ export const authApi = createApi({
         return { message: response?.message ?? "Succes doing action" };
       },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
-        // reset user state
-        dispatch(resetUser());
-        // remove token from localstorage
         queryFulfilled
           .then(() => {
             dispatch(setAlert({ type: "success", message: "Successfully logged out" }));
@@ -87,11 +78,7 @@ export const authApi = createApi({
               })
             );
           })
-          .finally(() => {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("email");
-            localStorage.removeItem("name");
-          });
+          .finally(() => dispatch(resetUser()));
       },
       invalidatesTags: ["auth"],
     }),
@@ -101,23 +88,8 @@ export const authApi = createApi({
       },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         queryFulfilled
-          .then(
-            ({
-              data: {
-                user: { name, email },
-              },
-            }) => {
-              dispatch(setUser({ name, email, accessToken: localStorage.getItem("accessToken") }));
-              localStorage.setItem("name", name);
-              localStorage.setItem("email", email);
-            }
-          )
-          .catch(() => {
-            dispatch(resetUser());
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("name");
-            localStorage.removeItem("email");
-          });
+          .then(({ data: { user } }) => dispatch(setUser(user)))
+          .catch(() => dispatch(resetUser()));
       },
       providesTags: ["auth"],
     }),

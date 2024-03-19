@@ -81,6 +81,17 @@ export const formApi = createApi({
         url: `forms/${slug}/questions/${id}`,
         method: "DELETE",
       }),
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        queryFulfilled
+          .then(({ data: { message } }) => dispatch(setAlert({ type: "success", message })))
+          .catch(
+            ({
+              error: {
+                data: { message },
+              },
+            }) => dispatch(setAlert({ type: "error", message: message ?? "Failed doing action" }))
+          );
+      },
       invalidatesTags: (_, error, { slug }) => (error ? [] : [{ type: "form", id: slug }]),
     }),
     /* -------------------------------------------------------------------------- */

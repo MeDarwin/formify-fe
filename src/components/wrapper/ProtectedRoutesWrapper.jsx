@@ -6,13 +6,14 @@ import { CommonLoading } from "../CommonLoading";
 
 export const ProtectedRoutesWrapper = () => {
   const { accessToken } = useSelector((state) => state.authenticated);
-  const { isLoading, isError } = useGetMeQuery(null,{skip: !accessToken});
+  const { isLoading, isError } = useGetMeQuery(null, { skip: !accessToken });
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
+    console.log("called", accessToken);
     //navigate to login when token error
     if (isError || !accessToken) navigate("/login");
-  }, [accessToken, isError, navigate]);
+  });
 
   if (isLoading) return <CommonLoading />;
   //only render when user is already fetched or accessToken is present

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useLogoutMutation } from "../reducer/services/authApi";
+import { resetUser } from "../reducer/slices/authSlice";
 import { CommonLoading } from "./CommonLoading";
 
 /**
@@ -13,6 +14,7 @@ export const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const { name } = useSelector((state) => state.authenticated);
   const [logout, { isLoading }] = useLogoutMutation();
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -56,7 +58,11 @@ export const Navbar = () => {
               className="btn btn-sm btn-outline btn-error"
               disabled={isLoading}
               aria-disabled={isLoading}
-              onClick={() => logout()}
+              onClick={() => {
+                logout();
+                //predelete user to prevent get me initiated
+                dispatch(resetUser());
+              }}
             >
               Logout
             </button>
