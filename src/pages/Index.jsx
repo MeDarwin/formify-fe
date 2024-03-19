@@ -171,7 +171,8 @@ const FormCard = ({ form }) => {
  * Question form component, question form modal
  * @returns React Component
  */
-const QuestionForm = () => {
+const QuestionForm = ({ formCreatorId }) => {
+  const { id: user_id } = useSelector((state) => state.authenticated);
   const modalRef = useRef();
   const dispatch = useDispatch();
   const [searchParam] = useSearchParams();
@@ -326,9 +327,14 @@ const QuestionForm = () => {
           Save ✅
         </button>
       </Modal>
-      <button className="btn btn-primary btn-sm mb-5" onClick={() => modalRef.current.showModal()}>
-        Add Question +
-      </button>
+      {formCreatorId === user_id && (
+        <button
+          className="btn btn-primary btn-sm mb-5"
+          onClick={() => modalRef.current.showModal()}
+        >
+          Add Question +
+        </button>
+      )}
     </>
   );
 };
@@ -339,6 +345,7 @@ const QuestionForm = () => {
  */
 const FormDetail = () => {
   const dispatch = useDispatch();
+  const { id: user_id } = useSelector((state) => state.authenticated);
   const [searchParam] = useSearchParams();
   const { data, isLoading, isFetching, isError, error } = useGetBySlugQuery(
     searchParam.get("slug"),
@@ -403,7 +410,7 @@ const FormDetail = () => {
               </span>
             </p>
           </div>
-          <QuestionForm />
+          <QuestionForm formCreatorId={data?.form.creator_id} />
           <p className="text-lg">
             Questions:{" "}
             <span className="text-xs text-gray-400">{data?.form.questions.length} in total</span>
@@ -430,14 +437,16 @@ const FormDetail = () => {
                       ))}
                   </ul>
                 </span>
-                <button
-                  onClick={() => deleteQuestion({ slug: data?.form.slug, id })}
-                  className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6"
-                  disabled={isDeleting}
-                  aria-disabled={isDeleting}
-                >
-                  💣
-                </button>
+                {data?.form.create_id === user_id && (
+                  <button
+                    onClick={() => deleteQuestion({ slug: data?.form.slug, id })}
+                    className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6"
+                    disabled={isDeleting}
+                    aria-disabled={isDeleting}
+                  >
+                    💣
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -472,7 +481,9 @@ export const Home = () => {
       ) : (
         <article className="mb-8">
           <span className="flex items-center gap-x-4">
-            <h1 className="text-4xl text-pink-500 text-nowrap leading-none">All user&apos;s Created Form</h1>
+            <h1 className="text-4xl text-pink-500 text-nowrap leading-none">
+              All user&apos;s Created Form
+            </h1>
             <span className="block h-7 w-full bg-gradient-to-r from-pink-500 to-violet-500"></span>
           </span>
           {isLoading || isFetching ? (
