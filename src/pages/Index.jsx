@@ -157,10 +157,13 @@ const FormModal = ({ modalRef }) => {
  * @returns React Component
  */
 const FormCard = ({ form }) => {
+  const { id: user_id } = useSelector((state) => state.authenticated);
   return (
     <Link
       to={`?slug=${form.slug}`}
-      className="rounded-lg border border-violet-500 px-2 py-4 hover:cursor-pointer hover:outline-dashed hover:outline-2 hover:outline-pink-500"
+      className={`rounded-lg border border-primary px-2 py-4 hover:cursor-pointer hover:outline-dashed hover:outline-2 hover:outline-pink-500 ${
+        form?.creator_id === user_id ? "border-2 shadow-md shadow-primary/30" : ""
+      }`}
     >
       <p className="text-primary">{form?.name}</p>
     </Link>
@@ -499,12 +502,13 @@ export const Home = () => {
       )}
       {/* -------------------------------- FORM LIST ------------------------------- */}
 
-      {/* DIVIDER */}
       {searchParam.get("slug") != null && (
         <Link className="btn btn-outline btn-secondary" to={"/"}>
           Deselect form
         </Link>
       )}
+      {/* DIVIDER */}
+      <p className="text-sm text-gray-400 mt-3">PS: your form(s) will slightly glow</p>
       <div className="flex flex-col w-full">
         <div className="divider"></div>
       </div>
