@@ -10,7 +10,6 @@ export const ProtectedRoutesWrapper = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    console.log("called", accessToken);
     //navigate to login when token error
     if (isError || !accessToken) navigate("/login");
   });
