@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { CommonLoading } from "../../components/CommonLoading";
+import { ErrorField } from "../../components/ErrorField";
 import { useGetBySlugQuery, useSubmitResponseMutation } from "../../reducer/services/formApi";
 
 const ResponseForm = () => {
@@ -10,6 +12,7 @@ const ResponseForm = () => {
   });
   const [submitResponse, { isLoading: isSubmitting }] = useSubmitResponseMutation();
   const [answers, setAnswers] = useState([]);
+  const { errors } = useSelector((state) => state.alertMessage);
 
   useEffect(() => {
     // init the answers from query
@@ -169,20 +172,31 @@ const ResponseForm = () => {
           <p className="text-sm text-gray-500">
             Allowed domains: {data?.form.allowed_domains.join(", ")}
           </p>
-          {data?.form?.questions.map(({ id, name, choice_type, choices, is_required }, index) => (
-            <div key={id} className="card border">
-              <div className="card-body flex-wrap flex-col gap-y-1">
-                <p className={`card-title ${is_required ? "required" : ""}`}>
-                  {index + 1}. {name}
-                </p>
-                <form id="response-form" onSubmit={handleSubmit}>
+          <form id="response-form" onSubmit={handleSubmit}>
+            {data?.form?.questions.map(({ id, name, choice_type, choices, is_required }, index) => (
+              <div key={id} className="card border">
+                <div className="card-body flex-wrap flex-col gap-y-1">
+                  <p className={`card-title ${is_required ? "required" : ""}`}>
+                    {index + 1}. {name}
+                  </p>
                   {["multiple choice", "dropdown", "checkboxes"].includes(choice_type)
                     ? renderMultiAnswer(choice_type, id, choices)
                     : renderSingleAnswer(choice_type, id)}
-                </form>
+                  <ErrorField
+                    message={
+                      errors?.[`answers.${index}.value`]
+                        ? // Convert array to string and replace the field name
+                          new String(errors?.[`answers.${index}.value`]).replace(
+                            `The answers.${index}.value`,
+                            "This field "
+                          )
+                        : null
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </form>
           <div className="card-footer">
             <p className="text-sm text-gray-400 mt-4">
               <span className="block font-bold">

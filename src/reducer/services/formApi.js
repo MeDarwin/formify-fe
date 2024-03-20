@@ -98,21 +98,33 @@ export const formApi = createApi({
     /*                              RESPONSE ENDPOINT                             */
     /* -------------------------------------------------------------------------- */
     submitResponse: build.mutation({
-      query: ({ slug, data }) => ({
-        url: `forms/${slug}/responses`,
-        method: "POST",
-        body: { answers: data },
-      }),
+      query: ({ slug, data }) => {
+        // backend dont accept json array, manually convert to string
+        const answers = data.map((val) => {
+          Array.isArray(val.value) ? (val.value = val.value.join(",")) : val;
+          return val;
+        });
+        // return of query
+        return {
+          url: `forms/${slug}/responses`,
+          method: "POST",
+          body: {
+            answers,
+          },
+        };
+      },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         queryFulfilled
           .then(({ data: { message } }) => dispatch(setAlert({ type: "success", message })))
-          .catch(
-            ({
-              error: {
-                data: { message },
-              },
-            }) => dispatch(setAlert({ type: "error", message: message ?? "Failed doing action" }))
+          .catch(({ error: { message, errors } }) =>
+            dispatch(setAlert({ type: "error", message, errors }))
           );
+      },
+      transformErrorResponse: (response) => {
+        return {
+          message: response.data?.message ?? "Failed doing action",
+          errors: response.data?.errors,
+        };
       },
       transformResponse: (response) => {
         return { message: response?.message ?? "Succes doing action" };
