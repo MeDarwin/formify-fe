@@ -440,7 +440,7 @@ const FormDetail = () => {
                       ))}
                   </ul>
                 </span>
-                {data?.form.create_id === user_id && (
+                {data?.form.creator_id === user_id && (
                   <button
                     onClick={() => deleteQuestion({ slug: data?.form.slug, id })}
                     className="btn btn-outline ms-auto justify-center btn-error hover:before:content-['Delete_question_'] before:text-white line-clamp-6"
@@ -453,6 +453,16 @@ const FormDetail = () => {
               </div>
             </div>
           ))}
+          <div className="card-actions">
+            {data?.form.creator_id === user_id && (
+              <Link
+                to={`/answers/${data?.form.slug}`}
+                className="btn btn-secondary btn-outline btn-block"
+              >
+                See Answers
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </article>

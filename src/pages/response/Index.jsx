@@ -172,7 +172,7 @@ const ResponseForm = () => {
           <p className="text-sm text-gray-500">
             Allowed domains: {data?.form.allowed_domains.join(", ")}
           </p>
-          <form id="response-form" onSubmit={handleSubmit}>
+          <form id="response-form" className="flex gap-y-4 flex-col" onSubmit={handleSubmit}>
             {data?.form?.questions.map(({ id, name, choice_type, choices, is_required }, index) => (
               <div key={id} className="card border">
                 <div className="card-body flex-wrap flex-col gap-y-1">

@@ -130,6 +130,31 @@ export const formApi = createApi({
         return { message: response?.message ?? "Succes doing action" };
       },
     }),
+    getResponses: build.query({
+      query: (slug) => ({
+        url: `forms/${slug}/responses`,
+        method: "GET",
+      }),
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        queryFulfilled
+          .catch(({ error: { message } }) =>
+            dispatch(setAlert({ type: "error", message: message ?? "Failed doing action" }))
+          );
+      },
+      transformErrorResponse: (response) => {
+        return {
+          message: response.data?.message ?? "Failed doing action",
+          errors: response.data?.errors,
+        };
+      },
+      transformResponse: (response) => {
+        return {
+          message: response?.message ?? "Succes doing action",
+          responses: response?.responses,
+        };
+      },
+      providesTags: (_, error, slug ) => (error ? [] : [{ type: "form", id: slug }]),
+    }),
   }),
 });
 
@@ -142,4 +167,6 @@ export const {
   useCreateQuestionMutation,
   useDeleteQuestionMutation,
   useSubmitResponseMutation,
+  useGetResponsesQuery,
+  useLazyGetResponsesQuery,
 } = formApi;
