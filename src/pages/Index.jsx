@@ -409,7 +409,7 @@ const FormDetail = () => {
                 )}
               </span>
               <span className="block">
-                Allowed domains: {data?.form.allowed_domains.join(", ")}
+                Allowed domains: {data?.form.allowed_domains.join(", ") || "*"}
               </span>
             </p>
           </div>
